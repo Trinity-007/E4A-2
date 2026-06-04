@@ -52,7 +52,8 @@ function initializeDatabase() {
       name TEXT NOT NULL,
       email TEXT NOT NULL UNIQUE,
       password TEXT NOT NULL,
-      role TEXT NOT NULL DEFAULT 'buyer'
+      role TEXT NOT NULL DEFAULT 'buyer',
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     )`);
 
     db.run(`CREATE TABLE IF NOT EXISTS products (
@@ -163,6 +164,18 @@ function initializeDatabase() {
 }
 
 initializeDatabase();
+
+// Ensure `created_at` column exists on users table (for upgrades)
+db.all("PRAGMA table_info(users)", (err, cols) => {
+  if (err) return console.error('Error checking users table:', err.message);
+  const hasCreated = cols && cols.some((c) => c.name === 'created_at');
+  if (!hasCreated) {
+    db.run("ALTER TABLE users ADD COLUMN created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP", (alterErr) => {
+      if (alterErr) console.error('Error adding created_at to users:', alterErr.message);
+      else console.log('Added created_at column to users table');
+    });
+  }
+});
 
 function requireLogin(req, res, next) {
   if (!req.session.user) {
@@ -346,11 +359,59 @@ app.get('/api/admin/products', requireAdmin, (req, res) => {
 });
 
 app.get('/api/admin/users', requireAdmin, (req, res) => {
-  db.all('SELECT id, name, email, role FROM users ORDER BY id DESC', (err, rows) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 50;
+  const offset = (page - 1) * limit;
+
+  db.all('SELECT id, name, email, role, created_at FROM users ORDER BY id DESC LIMIT ? OFFSET ?', [limit, offset], (err, rows) => {
     if (err) {
       return res.status(500).json({ error: 'Unable to load users.' });
     }
-    res.json({ users: rows });
+    db.get('SELECT COUNT(*) AS total FROM users', (err2, countRow) => {
+      if (err2) return res.status(500).json({ error: 'Unable to load users count.' });
+      res.json({ users: rows, page, limit, total: countRow.total });
+    });
+  });
+});
+
+// Detailed user info with related messages for admin
+app.get('/api/admin/users/:id', requireAdmin, (req, res) => {
+  const userId = req.params.id;
+  db.get('SELECT id, name, email, role, created_at FROM users WHERE id = ?', [userId], (err, user) => {
+    if (err) return res.status(500).json({ error: 'Unable to load user.' });
+    if (!user) return res.status(404).json({ error: 'User not found.' });
+
+    db.all(
+      'SELECT * FROM messages WHERE sender_id = ? OR recipient_email = ? ORDER BY created_at DESC',
+      [user.id, user.email],
+      (err2, messages) => {
+        if (err2) return res.status(500).json({ error: 'Unable to load user messages.' });
+        res.json({ user, messages });
+      }
+    );
+  });
+});
+
+// Full user history: products, contacts, messages
+app.get('/api/admin/users/:id/history', requireAdmin, (req, res) => {
+  const userId = req.params.id;
+  db.get('SELECT id, name, email FROM users WHERE id = ?', [userId], (err, user) => {
+    if (err) return res.status(500).json({ error: 'Unable to load user.' });
+    if (!user) return res.status(404).json({ error: 'User not found.' });
+
+    // Find products where seller matches user name or email
+    db.all('SELECT * FROM products WHERE seller_name = ? OR seller_name = ? ORDER BY created_at DESC', [user.name, user.email], (err2, products) => {
+      if (err2) return res.status(500).json({ error: 'Unable to load products.' });
+
+      db.all('SELECT * FROM contacts WHERE email = ? ORDER BY created_at DESC', [user.email], (err3, contacts) => {
+        if (err3) return res.status(500).json({ error: 'Unable to load contacts.' });
+
+        db.all('SELECT * FROM messages WHERE sender_id = ? OR recipient_email = ? ORDER BY created_at DESC', [user.id, user.email], (err4, messages) => {
+          if (err4) return res.status(500).json({ error: 'Unable to load messages.' });
+          res.json({ user, products, contacts, messages });
+        });
+      });
+    });
   });
 });
 

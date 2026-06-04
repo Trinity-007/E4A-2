@@ -207,14 +207,94 @@ const showAdminDashboard = async () => {
   if (usersContainer) {
     usersContainer.innerHTML = users.users.length
       ? users.users.map((user) => `
-        <div class="item-row">
-          <div>
-            <strong>${user.name}</strong> • ${user.email}
+        <div class="user-row">
+          <div class="user-header" data-id="${user.id}" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <strong>${user.name}</strong>
+              <div style="font-size:0.85em; color:#666;">${new Date(user.created_at).toLocaleString()}</div>
+              <div style="font-size:0.85em; color:#444;">${user.email}</div>
+            </div>
+            <div><small>${user.role}</small></div>
           </div>
-          <span>${user.role}</span>
+          <div class="user-details" id="user-details-${user.id}" style="display:none; padding:8px 12px; border-left:2px solid #eee; margin:6px 0;">
+            <p><strong>ID:</strong> ${user.id}</p>
+            <p><strong>Email:</strong> ${user.email}</p>
+            <p><strong>Role:</strong> ${user.role}</p>
+            <p><strong>Joined:</strong> ${new Date(user.created_at).toLocaleString()}</p>
+            <div id="user-history-${user.id}"></div>
+            <button id="user-history-btn-${user.id}">Load full history</button>
+          </div>
         </div>
       `).join('')
       : '<p>No registered users yet.</p>';
+
+    // Attach toggle handlers for expanding user details and fetching user messages
+    usersContainer.querySelectorAll('.user-header').forEach((header) => {
+      header.addEventListener('click', async () => {
+        const id = header.dataset.id;
+        const details = document.getElementById(`user-details-${id}`);
+        if (!details) return;
+
+        // If details not loaded yet, fetch user details from server
+        if (details.dataset.loaded !== 'true') {
+          details.innerHTML = '<p>Loading user details...</p>';
+          try {
+            const result = await apiRequest(`/api/admin/users/${id}`);
+            if (result.user) {
+              details.innerHTML = `
+                <p><strong>ID:</strong> ${result.user.id}</p>
+                <p><strong>Email:</strong> ${result.user.email}</p>
+                <p><strong>Role:</strong> ${result.user.role}</p>
+              `;
+
+              if (result.messages && result.messages.length) {
+                details.innerHTML += '<h4>Messages</h4>' + result.messages.slice(0,10).map((m) => `
+                  <div class="user-message">
+                    <p><strong>${m.subject}</strong></p>
+                    <p>${m.body.substring(0,120)}${m.body.length>120? '...':''}</p>
+                    <small>From: ${m.sender_name || 'N/A'} • To: ${m.recipient_email || 'N/A'} • ${m.created_at}</small>
+                  </div>
+                `).join('');
+              } else {
+                details.innerHTML += '<p>No messages for this user.</p>';
+              }
+              // Attach history loader
+              const histBtn = document.getElementById(`user-history-btn-${id}`);
+              if (histBtn) {
+                histBtn.addEventListener('click', async (e) => {
+                  e.stopPropagation();
+                  const histDiv = document.getElementById(`user-history-${id}`);
+                  if (!histDiv) return;
+                  if (histDiv.dataset.loaded === 'true') return;
+                  histDiv.innerHTML = '<p>Loading history...</p>';
+                  try {
+                    const h = await apiRequest(`/api/admin/users/${id}/history`);
+                    histDiv.innerHTML = `
+                      <h5>Products (${h.products.length})</h5>
+                      ${h.products.length ? h.products.map(p => `<div><strong>${p.title}</strong> — $${Number(p.price).toFixed(2)}<br/><small>${p.created_at}</small></div>`).join('') : '<p>No products.</p>'}
+                      <h5>Contacts (${h.contacts.length})</h5>
+                      ${h.contacts.length ? h.contacts.map(c => `<div><strong>${c.name}</strong> — ${c.email}<p>${c.message}</p><small>${c.created_at}</small></div>`).join('') : '<p>No contact messages.</p>'}
+                      <h5>Messages (${h.messages.length})</h5>
+                      ${h.messages.length ? h.messages.map(m => `<div><strong>${m.subject}</strong><p>${m.body.substring(0,120)}${m.body.length>120? '...':''}</p><small>${m.created_at}</small></div>`).join('') : '<p>No messages.</p>'}
+                    `;
+                    histDiv.dataset.loaded = 'true';
+                  } catch (err) {
+                    histDiv.innerHTML = '<p>Error loading history.</p>';
+                  }
+                });
+              }
+            } else {
+              details.innerHTML = `<p>Error loading user: ${result.error || 'Unknown'}</p>`;
+            }
+          } catch (e) {
+            details.innerHTML = `<p>Error fetching user details.</p>`;
+          }
+          details.dataset.loaded = 'true';
+        }
+
+        details.style.display = details.style.display === 'none' ? 'block' : 'none';
+      });
+    });
   }
 };
 
