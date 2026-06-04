@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Products | E4A</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav-bar">
+      <div class="brand">E4A</div>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="products.html">Products</a>
+        <a href="contact.html">Contact</a>
+        <a href="messages.html" style="display:none;">Messages</a>
+        <a href="login.html">Login</a>
+        <a href="register.html">Register</a>
+        <a href="admin.html">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container products-page">
+    <section class="product-header">
+      <div>
+        <h1>Marketplace</h1>
+        <p>Browse products from sellers across Africa. Add your own listing when you sign in.</p>
+      </div>
+      <div class="product-actions">
+        <select id="category-filter">
+          <option value="All">All categories</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Fashion">Fashion</option>
+          <option value="Computing">Computing</option>
+          <option value="Home">Home</option>
+          <option value="Sports">Sports</option>
+        </select>
+        <button id="refresh-products" class="button button-secondary">Refresh</button>
+      </div>
+    </section>
+
+    <section id="product-list" class="product-grid"></section>
+
+    <section class="card sell-section">
+      <h2>Sell an item</h2>
+      <p>Post a product to sell faster. Sign in first to list items.</p>
+      <form id="product-form">
+        <label for="title">Title</label>
+        <input id="title" name="title" type="text" />
+        <label for="category">Category</label>
+        <input id="category" name="category" type="text" placeholder="Electronics, Fashion, Home, etc." />
+        <label for="price">Price (USD)</label>
+        <input id="price" name="price" type="number" step="0.01" />
+        <label for="image">Image URL</label>
+        <input id="image" name="image" type="url" placeholder="https://example.com/image.jpg" />
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="4"></textarea>
+        <button type="submit" class="button">List Product</button>
+      </form>
+      <p id="product-message" class="message"></p>
+    </section>
+  </main>
+
+  <footer class="container footer">
+    <p>© 2026 E4A - Ebay for Africa.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard | E4A</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav-bar">
+      <div class="brand">E4A</div>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="products.html">Products</a>
+        <a href="contact.html">Contact</a>
+        <a href="login.html">Login</a>
+        <a href="register.html">Register</a>
+        <a href="admin.html">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container admin-page">
+    <section class="card admin-card">
+      <h1>Admin Dashboard</h1>
+      <div id="admin-area">
+        <div class="admin-stats" id="admin-stats"></div>
+        
+        <section class="admin-panel">
+          <h2>Direct Messages</h2>
+          <div id="admin-messages"></div>
+        </section>
+
+        <section class="admin-panel">
+          <h2>Contact messages</h2>
+          <div id="contact-messages"></div>
+        </section>
+
+        <section class="admin-panel">
+          <h2>Product listings</h2>
+          <div id="admin-products"></div>
+        </section>
+
+        <section class="admin-panel">
+          <h2>Registered users</h2>
+          <div id="admin-users"></div>
+        </section>
+      </div>
+      <p id="admin-message" class="message"></p>
+    </section>
+  </main>
+
+  <footer class="container footer">
+    <p>© 2026 E4A - Ebay for Africa.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Messages | E4A</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav-bar">
+      <div class="brand">E4A</div>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="products.html">Products</a>
+        <a href="contact.html">Contact</a>
+        <a href="messages.html">Messages</a>
+        <a href="login.html">Login</a>
+        <a href="register.html">Register</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container messages-page">
+    <section class="card messages-card">
+      <h1>Messages</h1>
+      <div class="messages-container">
+        <div class="send-message-form">
+          <h2>Send a message</h2>
+          <form id="message-form">
+            <label for="recipient_email">Recipient Email</label>
+            <input id="recipient_email" name="recipient_email" type="email" required />
+            <label for="subject">Subject</label>
+            <input id="subject" name="subject" type="text" required />
+            <label for="body">Message</label>
+            <textarea id="body" name="body" rows="5" required></textarea>
+            <button type="submit" class="button">Send Message</button>
+          </form>
+          <p id="message-send-result" class="message"></p>
+        </div>
+
+        <div class="message-inbox">
+          <h2>Inbox</h2>
+          <div id="messages-list"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="container footer">
+    <p>© 2026 E4A - Ebay for Africa.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

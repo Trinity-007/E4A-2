@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact | E4A</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav-bar">
+      <div class="brand">E4A</div>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="products.html">Products</a>
+        <a href="contact.html">Contact</a>
+        <a href="messages.html" style="display:none;">Messages</a>
+        <a href="login.html">Login</a>
+        <a href="register.html">Register</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container auth-page">
+    <div class="card form-card">
+      <h1>Contact the owner</h1>
+      <form id="contact-form">
+        <label for="name">Full name</label>
+        <input id="name" name="name" type="text" required />
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" required />
+        <label for="message">Message</label>
+        <textarea id="message" name="message" rows="5" required></textarea>
+        <button type="submit" class="button">Send Message</button>
+      </form>
+      <p id="contact-message" class="message"></p>
+    </div>
+  </main>
+
+  <footer class="container footer">
+    <p>© 2026 E4A - Ebay for Africa.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
