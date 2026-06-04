@@ -287,6 +287,77 @@ const showAdminMessages = async () => {
   `).join('');
 };
 
+const showBackendConsole = async () => {
+  const profile = await loadProfile();
+  const messageElement = document.getElementById('backend-message');
+  if (!profile || profile.role !== 'admin') {
+    if (messageElement) {
+      messageElement.textContent = 'Admin access required. Please log in as the administrator.';
+    }
+    return;
+  }
+
+  const [stats, contacts, products, users, messages] = await Promise.all([
+    apiRequest('/api/admin/stats'),
+    apiRequest('/api/admin/contacts'),
+    apiRequest('/api/admin/products'),
+    apiRequest('/api/admin/users'),
+    apiRequest('/api/admin/messages')
+  ]);
+
+  const statsContainer = document.getElementById('backend-stats');
+  if (statsContainer && stats.stats) {
+    statsContainer.innerHTML = `
+      <div class="admin-stat"><span>Products</span><strong>${stats.stats.products}</strong></div>
+      <div class="admin-stat"><span>Contacts</span><strong>${stats.stats.contacts}</strong></div>
+      <div class="admin-stat"><span>Messages</span><strong>${stats.stats.messages}</strong></div>
+      <div class="admin-stat"><span>Users</span><strong>${stats.stats.users}</strong></div>
+    `;
+  }
+
+  const backendData = document.getElementById('backend-data');
+  if (!backendData) return;
+
+  backendData.innerHTML = `
+    <div class="admin-panel"><h3>Latest contacts</h3>
+      ${contacts.contacts.length ? contacts.contacts.slice(0, 5).map((item) => `
+        <div class="message-item read">
+          <div class="message-header"><strong>${item.name}</strong><small>${item.created_at}</small></div>
+          <p>${item.message}</p>
+          <p><small>${item.email}</small></p>
+        </div>
+      `).join('') : '<p>No contact messages yet.</p>'}
+    </div>
+    <div class="admin-panel"><h3>Latest products</h3>
+      ${products.products.length ? products.products.slice(0, 5).map((product) => `
+        <div class="message-item read">
+          <p><strong>${product.title}</strong> — ${product.category}</p>
+          <p>$${Number(product.price).toFixed(2)}</p>
+          <p><small>Seller: ${product.seller_name}</small></p>
+        </div>
+      `).join('') : '<p>No products available.</p>'}
+    </div>
+    <div class="admin-panel"><h3>Users</h3>
+      ${users.users.length ? users.users.map((user) => `
+        <div class="message-item read">
+          <p><strong>${user.name}</strong> — ${user.role}</p>
+          <p><small>${user.email}</small></p>
+        </div>
+      `).join('') : '<p>No registered users yet.</p>'}
+    </div>
+    <div class="admin-panel"><h3>Direct messages</h3>
+      ${messages.messages.length ? messages.messages.slice(0, 5).map((msg) => `
+        <div class="message-item read">
+          <div class="message-header"><strong>${msg.sender_name}</strong><small>${msg.created_at}</small></div>
+          <p><strong>${msg.subject}</strong></p>
+          <p>${msg.body.substring(0, 120)}...</p>
+          <p><small>To: ${msg.recipient_email}</small></p>
+        </div>
+      `).join('') : '<p>No direct messages yet.</p>'}
+    </div>
+  `;
+};
+
 const initializePage = async () => {
   const profile = await loadProfile();
 
@@ -295,6 +366,7 @@ const initializePage = async () => {
   );
 
   const adminLink = Array.from(document.querySelectorAll('nav a')).find((link) => link.textContent.trim() === 'Admin');
+  const backendLink = Array.from(document.querySelectorAll('nav a')).find((link) => link.textContent.trim() === 'Backend');
   const sellForm = document.getElementById('product-form');
   const messagesLink = Array.from(document.querySelectorAll('nav a')).find((link) => link.textContent.trim() === 'Messages');
 
@@ -308,6 +380,9 @@ const initializePage = async () => {
     if (adminLink && profile.role !== 'admin') {
       adminLink.style.display = 'none';
     }
+    if (backendLink) {
+      backendLink.style.display = profile.role === 'admin' ? 'inline' : 'none';
+    }
   } else {
     if (messagesLink) messagesLink.style.display = 'none';
     if (sellForm) {
@@ -316,6 +391,9 @@ const initializePage = async () => {
     }
     if (adminLink) {
       adminLink.style.display = 'none';
+    }
+    if (backendLink) {
+      backendLink.style.display = 'none';
     }
   }
 
@@ -341,6 +419,10 @@ const initializePage = async () => {
   if (document.getElementById('admin-area')) {
     await showAdminDashboard();
     await showAdminMessages();
+  }
+
+  if (document.getElementById('backend-data')) {
+    await showBackendConsole();
   }
 };
 

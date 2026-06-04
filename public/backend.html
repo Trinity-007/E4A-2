@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend Console | E4A</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav-bar">
+      <div class="brand">E4A</div>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="products.html">Products</a>
+        <a href="contact.html">Contact</a>
+        <a href="messages.html">Messages</a>
+        <a href="login.html">Login</a>
+        <a href="register.html">Register</a>
+        <a href="admin.html">Admin</a>
+        <a href="backend.html" style="display:none;">Backend</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container admin-page">
+    <section class="card admin-card">
+      <h1>Backend Console</h1>
+      <p>This page gives you direct access to backend data and raw API results after admin login.</p>
+
+      <div class="admin-stats" id="backend-stats"></div>
+
+      <section class="admin-panel">
+        <h2>API Endpoints</h2>
+        <ul>
+          <li><code>/api/products</code> - list products</li>
+          <li><code>/api/products?category=CategoryName</code> - filter products</li>
+          <li><code>/api/contact</code> - submit contact form</li>
+          <li><code>/api/messages</code> - your inbox/messages</li>
+          <li><code>/api/admin/contacts</code> - admin contact messages</li>
+          <li><code>/api/admin/products</code> - admin product list</li>
+          <li><code>/api/admin/users</code> - admin user list</li>
+          <li><code>/api/admin/messages</code> - admin direct messages</li>
+        </ul>
+      </section>
+
+      <section class="admin-panel">
+        <h2>Backend Data Preview</h2>
+        <div id="backend-data"></div>
+      </section>
+
+      <p id="backend-message" class="message"></p>
+    </section>
+  </main>
+
+  <footer class="container footer">
+    <p>© 2026 E4A - Ebay for Africa.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
